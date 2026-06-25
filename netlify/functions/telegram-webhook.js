@@ -90,7 +90,8 @@ exports.handler = async (event) => {
       const ref = db.collection("verifyCodes").doc(phone);
       const snap = await ref.get();
 
-      if (!snap.exists()) {
+      // ✅ ИСПРАВЛЕНО: snap.exists (свойство, не метод)
+      if (!snap.exists) {
         await removeKeyboard(chatId, `❌ Номер ${phone} не найден. Сначала введите номер на сайте и нажмите «Продолжить».`);
         return { statusCode: 200, body: "ok" };
       }
@@ -110,7 +111,7 @@ exports.handler = async (event) => {
       // Сохраняем chatId
       await ref.set({ chatId }, { merge: true });
 
-      await removeKeyboard(chatId, `✅ Номер подтверждён!\n\nВаш код: *${data.code}*\n\nВведите его на сайте. Код действует 10 минут.`);
+      await removeKeyboard(chatId, `✅ Номер подтверждён!\n\nВаш код: ${data.code}\n\nВведите его на сайте. Код действует 10 минут.`);
 
     } catch (e) {
       console.error(e);
