@@ -860,7 +860,7 @@ function ProfileScreen({user, onBack}) {
           )
         )
       ),
-      h('div',{style:{fontWeight:700,fontSize:14,marginBottom:10}},"Отзывы"),
+      h('button',{onClick:()=>{localStorage.removeItem("user");window.location.reload();},style:{width:"100%",padding:"12px",borderRadius:12,background:"#fff0f0",border:"1px solid #ffd0d0",color:"#e53935",fontWeight:700,fontSize:14,cursor:"pointer",marginBottom:16}},"Выйти из аккаунта"),h('div',{style:{fontWeight:700,fontSize:14,marginBottom:10}},"Отзывы"),
       loading ? h('p',{style:{fontSize:13,color:"#aaa"}},"Загрузка...")
       : reviews.length===0 ? h('p',{style:{fontSize:13,color:"#aaa"}},"Пока нет отзывов")
       : reviews.map(r=>h('div',{key:r.id,className:"card",style:{padding:14,marginBottom:10}},
