@@ -1,9 +1,11 @@
 // netlify/functions/telegram-webhook.js
 //
-// Принимает обновления от Telegram-бота подтверждения телефона.
-// Юзер на сайте вводит номер -> сайт пишет код в Firestore (verifyCodes/{phone})
-// со сроком жизни 10 минут -> юзер открывает бота по ссылке t.me/BOT?start=<phone>
-// -> бот присылает текущий код в чат -> юзер вводит этот код на сайте.
+// Логика:
+// 1. Юзер нажимает /start в боте
+// 2. Бот просит поделиться номером телефона
+// 3. Telegram отправляет реальный номер юзера
+// 4. Бот проверяет — есть ли этот номер в verifyCodes
+// 5. Если есть — отправляет код подтверждения
 //
 // ENV переменные (Netlify -> Site settings -> Environment variables):
 //   TELEGRAM_BOT_TOKEN        — токен бота от BotFather
@@ -26,74 +28,105 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
-async function sendMessage(chatId, text) {
+async function sendMessage(chatId, text, replyMarkup) {
+  const body = { chat_id: chatId, text };
+  if (replyMarkup) body.reply_markup = replyMarkup;
   await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, text }),
+    body: JSON.stringify(body),
   });
 }
 
+async function sendContactRequest(chatId) {
+  await sendMessage(
+    chatId,
+    "Нажмите кнопку ниже, чтобы поделиться своим номером телефона для подтверждения.",
+    {
+      keyboard: [[{ text: "📱 Поделиться номером", request_contact: true }]],
+      resize_keyboard: true,
+      one_time_keyboard: true,
+    }
+  );
+}
+
+async function removeKeyboard(chatId, text) {
+  await sendMessage(chatId, text, { remove_keyboard: true });
+}
+
 exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 200, body: "ok" };
-  }
+  if (event.httpMethod !== "POST") return { statusCode: 200, body: "ok" };
 
   let update;
   try {
     update = JSON.parse(event.body);
-  } catch (e) {
+  } catch {
     return { statusCode: 200, body: "ok" };
   }
 
   const msg = update.message;
-  if (!msg || !msg.text) {
-    return { statusCode: 200, body: "ok" };
-  }
+  if (!msg) return { statusCode: 200, body: "ok" };
 
   const chatId = msg.chat.id;
-  const text = msg.text.trim();
 
-  if (text.startsWith("/start")) {
-    const parts = text.split(/\s+/);
-    const phone = parts[1];
+  // Пользователь поделился контактом
+  if (msg.contact) {
+    const contact = msg.contact;
 
-    if (!phone) {
-      await sendMessage(chatId, "Откройте этого бота по ссылке из приложения «Подработка рядом», чтобы получить код подтверждения.");
+    // Проверяем что это контакт самого пользователя, а не чужой
+    if (contact.user_id !== msg.from.id) {
+      await removeKeyboard(chatId, "❌ Пожалуйста, поделитесь своим собственным номером телефона.");
+      await sendContactRequest(chatId);
       return { statusCode: 200, body: "ok" };
     }
 
+    // Нормализуем номер — убираем всё кроме цифр и добавляем +
+    let phone = contact.phone_number.replace(/\D/g, "");
+    if (!phone.startsWith("7") && phone.length === 10) phone = "7" + phone;
+    phone = "+" + phone;
+
     try {
+      // Ищем код в Firebase по номеру телефона
       const ref = db.collection("verifyCodes").doc(phone);
       const snap = await ref.get();
 
-      if (!snap.exists) {
-        await sendMessage(chatId, "Код не найден. Вернитесь на сайт и нажмите «Продолжить» или «Отправить код» ещё раз.");
+      if (!snap.exists()) {
+        await removeKeyboard(chatId, `❌ Номер ${phone} не найден. Сначала введите номер на сайте и нажмите «Продолжить».`);
         return { statusCode: 200, body: "ok" };
       }
 
       const data = snap.data();
 
       if (data.used) {
-        await sendMessage(chatId, "Этот код уже был использован. Запросите новый на сайте.");
+        await removeKeyboard(chatId, "❌ Этот код уже был использован. Запросите новый на сайте.");
         return { statusCode: 200, body: "ok" };
       }
 
-      if (Date.now() > data.expiresAt) {
-        await sendMessage(chatId, "Код истёк (срок действия — 10 минут). Запросите новый на сайте.");
+      if (data.expiresAt && data.expiresAt.toDate() < new Date()) {
+        await removeKeyboard(chatId, "❌ Код истёк (срок действия — 10 минут). Запросите новый на сайте.");
         return { statusCode: 200, body: "ok" };
       }
 
+      // Сохраняем chatId
       await ref.set({ chatId }, { merge: true });
 
-      await sendMessage(chatId, `Ваш код подтверждения: ${data.code}\n\nВведите его на сайте. Код действует 10 минут.`);
+      await removeKeyboard(chatId, `✅ Номер подтверждён!\n\nВаш код: *${data.code}*\n\nВведите его на сайте. Код действует 10 минут.`);
+
     } catch (e) {
       console.error(e);
-      await sendMessage(chatId, "Произошла ошибка. Попробуйте ещё раз чуть позже.");
+      await removeKeyboard(chatId, "❌ Произошла ошибка. Попробуйте ещё раз чуть позже.");
     }
 
     return { statusCode: 200, body: "ok" };
   }
 
+  // Команда /start
+  if (msg.text && msg.text.startsWith("/start")) {
+    await sendContactRequest(chatId);
+    return { statusCode: 200, body: "ok" };
+  }
+
+  // Любое другое сообщение
+  await sendContactRequest(chatId);
   return { statusCode: 200, body: "ok" };
 };
