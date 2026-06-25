@@ -69,28 +69,23 @@ exports.handler = async (event) => {
 
   const chatId = msg.chat.id;
 
-  // Пользователь поделился контактом
   if (msg.contact) {
     const contact = msg.contact;
 
-    // Проверяем что это контакт самого пользователя, а не чужой
     if (contact.user_id !== msg.from.id) {
       await removeKeyboard(chatId, "❌ Пожалуйста, поделитесь своим собственным номером телефона.");
       await sendContactRequest(chatId);
       return { statusCode: 200, body: "ok" };
     }
 
-    // Нормализуем номер — убираем всё кроме цифр и добавляем +
     let phone = contact.phone_number.replace(/\D/g, "");
     if (!phone.startsWith("7") && phone.length === 10) phone = "7" + phone;
     phone = "+" + phone;
 
     try {
-      // Ищем код в Firebase по номеру телефона
       const ref = db.collection("verifyCodes").doc(phone);
       const snap = await ref.get();
 
-      // ✅ ИСПРАВЛЕНО: snap.exists (свойство, не метод)
       if (!snap.exists) {
         await removeKeyboard(chatId, `❌ Номер ${phone} не найден. Сначала введите номер на сайте и нажмите «Продолжить».`);
         return { statusCode: 200, body: "ok" };
@@ -103,14 +98,13 @@ exports.handler = async (event) => {
         return { statusCode: 200, body: "ok" };
       }
 
-      if (data.expiresAt && data.expiresAt.toDate() < new Date()) {
-        await removeKeyboard(chatId, "❌ Код истёк (срок действия — 10 минут). Запросите новый на сайте.");
+      const expiresAt = data.expiresAt?.toDate ? data.expiresAt.toDate() : new Date(data.expiresAt);
+      if (data.expiresAt && expiresAt < new Date()) {
+        await removeKeyboard(chatId, "❌ Код истёк. Запросите новый на сайте.");
         return { statusCode: 200, body: "ok" };
       }
 
-      // Сохраняем chatId
       await ref.set({ chatId }, { merge: true });
-
       await removeKeyboard(chatId, `✅ Номер подтверждён!\n\nВаш код: ${data.code}\n\nВведите его на сайте. Код действует 10 минут.`);
 
     } catch (e) {
@@ -121,13 +115,11 @@ exports.handler = async (event) => {
     return { statusCode: 200, body: "ok" };
   }
 
-  // Команда /start
   if (msg.text && msg.text.startsWith("/start")) {
     await sendContactRequest(chatId);
     return { statusCode: 200, body: "ok" };
   }
 
-  // Любое другое сообщение
   await sendContactRequest(chatId);
   return { statusCode: 200, body: "ok" };
 };
