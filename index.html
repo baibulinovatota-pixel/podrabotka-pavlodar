@@ -513,12 +513,21 @@ function CreateTask({user, onBack, onDone}) {
         "Firebase Console -> tasks -> " + taskId + "\n" +
         "status: pending_payment -> open (опубликовать) / rejected (отклонить)";
       try {
-        await fetch("https://api.telegram.org/bot8910813476:AAET6lE4eBSAUDLIeKG0sR94OwmDKbYh7cA/sendPhoto", {
-          method: "POST",
-          headers: {"Content-Type":"application/json"},
-          body: JSON.stringify({chat_id:"7922008036", photo: receiptUrl, caption})
-        });
-      } catch(e){ console.error("tg error", e); }
+  await fetch("/.netlify/functions/notify-task", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      taskId,
+      task: {
+        ...form,
+        pay: Number(form.pay),
+        authorName: user.name,
+        authorPhone: user.phone,
+        receiptUrl
+      }
+    })
+  });
+} catch(e){ console.error("tg error", e); }
 
       onDone();
     } catch(e) {
