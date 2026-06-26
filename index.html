@@ -480,43 +480,48 @@ function CreateTask({user, onBack, onDone}) {
     }
     setLoading(true);
     try {
-      const {db, storage, storageRef, uploadBytes, getDownloadURL, collection, addDoc, serverTimestamp} = window.__fb;
+      const {db, collection, addDoc, serverTimestamp} = window.__fb;
 
-      // 1. Загружаем чек в Firebase Storage → receipts/{uid}_{timestamp}_{filename}
-      const path = `receipts/${user.uid}_${Date.now()}_${receiptFile.name}`;
-      const fileRef = storageRef(storage, path);
-      await uploadBytes(fileRef, receiptFile);
-      const receiptUrl = await getDownloadURL(fileRef);
+      // 1. Конвертируем чек в base64 для отправки в Telegram
+      const base64 = await new Promise((res, rej) => {
+        const reader = new FileReader();
+        reader.onload = () => res(reader.result.split(",")[1]);
+        reader.onerror = rej;
+        reader.readAsDataURL(receiptFile);
+      });
 
-      // 2. Сохраняем задание со статусом pending_payment
+      // 2. Сохраняем задание в Firestore без Storage
       const docRef = await addDoc(collection(db,"tasks"), {
         ...form,
         pay: Number(form.pay),
         authorUid: user.uid,
         authorName: user.name,
         authorPhone: user.phone,
-        receiptUrl,
         status: "pending_payment",
         createdAt: serverTimestamp()
       });
 
-      // 3. Уведомляем модератора в Telegram с фото чека
       const taskId = docRef.id;
       const caption =
-        "\u{1F4CB} Новое задание на модерации\n\n" +
+        "📋 Новое задание на модерации\n\n" +
         "Название: " + form.title + "\n" +
         "Описание: " + form.description + "\n" +
         "Район: " + form.district + "\n" +
-        "Оплата: " + form.pay + " \u20B8\n" +
+        "Оплата: " + form.pay + " ₸\n" +
         "Автор: " + user.name + " (" + user.phone + ")\n\n" +
-        "ID: " + taskId + "\n\n" +
-        "Firebase Console -> tasks -> " + taskId + "\n" +
-        "status: pending_payment -> open (опубликовать) / rejected (отклонить)";
+        "ID: " + taskId + "\n" +
+        "Firestore -> tasks -> " + taskId + "\n" +
+        "Смени status: pending_payment → open (одобрить) / rejected (отклонить)";
+
+      // 3. Отправляем фото чека напрямую в Telegram (без Storage)
+      const formData = new FormData();
+      formData.append("chat_id", "7922008036");
+      formData.append("caption", caption);
+      formData.append("photo", receiptFile, receiptFile.name);
       try {
         await fetch("https://api.telegram.org/bot8833176195:AAGp0nx0XkPzGe1rQAXVX_PmopvVI6tuy1k/sendPhoto", {
           method: "POST",
-          headers: {"Content-Type":"application/json"},
-          body: JSON.stringify({chat_id:"7922008036", photo: receiptUrl, caption})
+          body: formData
         });
       } catch(e){ console.error("tg error", e); }
 
