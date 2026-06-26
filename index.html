@@ -513,7 +513,7 @@ function CreateTask({user, onBack, onDone}) {
         "Firebase Console -> tasks -> " + taskId + "\n" +
         "status: pending_payment -> open (опубликовать) / rejected (отклонить)";
       try {
-        await fetch("https://api.telegram.org/bot8910813476:AAET6lE4eBSAUDLIeKG0sR94OwmDKbYh7cA/sendPhoto", {
+        await fetch("https://api.telegram.org/bot8833176195:AAGp0nx0XkPzGe1rQAXVX_PmopvVI6tuy1k/sendPhoto", {
           method: "POST",
           headers: {"Content-Type":"application/json"},
           body: JSON.stringify({chat_id:"7922008036", photo: receiptUrl, caption})
@@ -612,7 +612,7 @@ function ReportModal({task, user, onClose}) {
     await addDoc(collection(db,"reports"),{taskId:task.id,taskTitle:task.title,reporterUid:user.uid,reporterName:user.name,createdAt:serverTimestamp()});
     try {
       const text = "🚩 Новая жалоба\n\nЗадание: "+task.title+"\nАвтор задания: "+(task.authorName||"—")+"\nЖалобу отправил: "+user.name+" ("+(user.phone||"")+")";
-      await fetch("https://api.telegram.org/bot8910813476:AAET6lE4eBSAUDLIeKG0sR94OwmDKbYh7cA/sendMessage",{
+      await fetch("https://api.telegram.org/bot8833176195:AAGp0nx0XkPzGe1rQAXVX_PmopvVI6tuy1k/sendMessage",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify({chat_id:"7922008036", text})
