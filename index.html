@@ -8,11 +8,11 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fafaf8; color: #1a1a1a; }
     input, textarea, select { font-family: inherit; }
-    .btn-orange { background: linear-gradient(135deg, #e8813a, #d4611f); color: white; border: none; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
+    .btn-orange { background: linear-gradient(135deg, #3aa6a6, #1f6f6f); color: white; border: none; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
     .btn-orange:active { transform: scale(0.97); opacity: 0.9; }
     .card { background: white; border-radius: 16px; border: 1px solid #f0ece6; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
     .input-field { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid #e0dbd4; font-size: 15px; outline: none; background: white; transition: border-color 0.2s; }
-    .input-field:focus { border-color: #e8813a; }
+    .input-field:focus { border-color: #3aa6a6; }
     .tag { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; border: none; transition: all 0.15s; }
     .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: flex-end; justify-content: center; }
     @media(min-width:600px) { .overlay { align-items: center; } .bottom-sheet { border-radius: 20px !important; max-width: 440px; } }
@@ -22,7 +22,7 @@
   </style>
 </head>
 <body>
-<div id="app-container"><div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fdf6ec,#fef3e2)"><div style="text-align:center"><div style="font-size:48px;margin-bottom:12px">🌾</div><p style="color:#e8813a;font-weight:700;font-size:16px">Загрузка...</p></div></div></div>
+<div id="app-container"><div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fdf6ec,#fef3e2)"><div style="text-align:center"><div style="font-size:48px;margin-bottom:12px">🛠️</div><p style="color:#3aa6a6;font-weight:700;font-size:16px">Загрузка...</p></div></div></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -199,7 +199,7 @@ const startRegistration = async () => {
     return h('div',{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:16,background:"linear-gradient(135deg,#fdf6ec,#fef3e2)"}},
       h('div',{style:{width:"100%",maxWidth:360}},
         h('div',{style:{textAlign:"center",marginBottom:24}},
-          h('div',{style:{width:64,height:64,borderRadius:16,background:"linear-gradient(135deg,#e87c35,#d4611f)",display:"inline-flex",alignItems:"center",justifyContent:"center",marginBottom:12,fontSize:32}},"✈️"),
+          h('div',{style:{width:64,height:64,borderRadius:16,background:"linear-gradient(135deg,#3aa6a6,#1f6f6f)",display:"inline-flex",alignItems:"center",justifyContent:"center",marginBottom:12,fontSize:32}},"✈️"),
           h('h1',{style:{fontSize:20,fontWeight:800}},"Подтвердите номер"),
           h('p',{style:{fontSize:13,color:"#888",marginTop:4}},pending && pending.phone)
         ),
@@ -235,7 +235,7 @@ const startRegistration = async () => {
   return h('div',{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:16,background:"linear-gradient(135deg,#fdf6ec,#fef3e2)"}},
     h('div',{style:{width:"100%",maxWidth:360}},
       h('div',{style:{textAlign:"center",marginBottom:32}},
-        h('div',{style:{width:64,height:64,borderRadius:16,background:"linear-gradient(135deg,#e87c35,#d4611f)",display:"inline-flex",alignItems:"center",justifyContent:"center",marginBottom:12,fontSize:32}},"🌾"),
+        h('div',{style:{width:64,height:64,borderRadius:16,background:"linear-gradient(135deg,#3aa6a6,#1f6f6f)",display:"inline-flex",alignItems:"center",justifyContent:"center",marginBottom:12,fontSize:32}},"🛠️"),
         h('h1',{style:{fontSize:22,fontWeight:800}},"Подработка рядом"),
         h('p',{style:{fontSize:13,color:"#888",marginTop:4}},"Бытовые задания · Павлодар")
       ),
@@ -269,7 +269,7 @@ function TaskCard({task, onChat, onReport, onComplete, uid}) {
   return h('div',{className:"card",style:{padding:16,marginBottom:12}},
     h('div',{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:8}},
       h('h3',{style:{fontWeight:700,fontSize:15,lineHeight:1.4,flex:1}},task.title),
-      h('span',{style:{color:"#d4611f",fontWeight:800,fontSize:16,whiteSpace:"nowrap"}},(task.pay||0).toLocaleString("ru-RU")+" ₸")
+      h('span',{style:{color:"#1f6f6f",fontWeight:800,fontSize:16,whiteSpace:"nowrap"}},(task.pay||0).toLocaleString("ru-RU")+" ₸")
     ),
     h('p',{className:"line-clamp2",style:{fontSize:13,color:"#666",lineHeight:1.5,marginBottom:12}},task.description),
     h('div',{style:{display:"flex",alignItems:"center",justifyContent:"space-between"}},
@@ -327,12 +327,27 @@ function ChatModal({task, user, onClose, otherUid, otherName}) {
   },[task.id, user.uid]);
 
   useEffect(()=>{
-    const {db,collection,query,orderBy,onSnapshot} = window.__fb;
+    const {db,collection,query,orderBy,onSnapshot,doc,setDoc,serverTimestamp} = window.__fb;
     const q = query(collection(db,"chats",chatId,"messages"),orderBy("createdAt"));
     return onSnapshot(q, snap=>{
       setMsgs(snap.docs.map(d=>({id:d.id,...d.data()})));
       setTimeout(()=>bottomRef.current?.scrollIntoView({behavior:"smooth"}),100);
+      // Чат открыт — отмечаем как прочитанный (убираем счётчик непрочитанных)
+      setDoc(doc(db,"chatMeta",chatId),{["lastRead_"+user.uid]: serverTimestamp()},{merge:true}).catch(()=>{});
     });
+  },[chatId]);
+
+  // Создаём запись чата сразу при открытии, чтобы он появился в списке "Чаты"
+  // даже если пользователь ещё ничего не написал.
+  useEffect(()=>{
+    const {db,doc,setDoc,serverTimestamp} = window.__fb;
+    setDoc(doc(db,"chatMeta",chatId),{
+      taskId:task.id, taskTitle:task.title, taskPay:task.pay||0,
+      posterUid, posterName:task.authorName,
+      applicantUid, applicantName:(otherName&&otherUid)?otherName:user.name,
+      participants:[posterUid,applicantUid],
+      updatedAt: serverTimestamp()
+    },{merge:true}).catch(()=>{});
   },[chatId]);
 
   const send = async()=>{
@@ -392,7 +407,7 @@ function ChatModal({task, user, onClose, otherUid, otherName}) {
       : h('div',{style:{padding:12,borderBottom:"1px solid #f0ece6"}},
           h('div',{style:{fontSize:13,fontWeight:700,marginBottom:8}},"Оставить отзыв"),
           h('div',{style:{display:"flex",flexDirection:"column",gap:6,marginBottom:8}},
-            reviewOpts.map(([k,label])=>h('button',{key:k,onClick:()=>setReviewRating(k),style:{padding:"8px 12px",borderRadius:10,fontSize:13,textAlign:"left",border:reviewRating===k?"2px solid #e8813a":"1px solid #e0dbd4",background:reviewRating===k?"#fef3e2":"white",cursor:"pointer"}},label))
+            reviewOpts.map(([k,label])=>h('button',{key:k,onClick:()=>setReviewRating(k),style:{padding:"8px 12px",borderRadius:10,fontSize:13,textAlign:"left",border:reviewRating===k?"2px solid #3aa6a6":"1px solid #e0dbd4",background:reviewRating===k?"#fef3e2":"white",cursor:"pointer"}},label))
           ),
           h('textarea',{className:"input-field",rows:2,placeholder:"Комментарий (необязательно)",value:reviewComment,onChange:e=>setReviewComment(e.target.value),style:{resize:"none",marginBottom:8}}),
           h('button',{className:"btn-orange",disabled:!reviewRating,onClick:()=>{const opt=reviewOpts.find(o=>o[0]===reviewRating);submitReview(opt[1],opt[2],reviewComment);},style:{width:"100%",padding:10,borderRadius:10,fontSize:13,fontWeight:700}},"Отправить отзыв")
@@ -404,7 +419,7 @@ function ChatModal({task, user, onClose, otherUid, otherName}) {
   return h('div',{className:"overlay",onClick:onClose},
     h('div',{className:"bottom-sheet",style:{maxHeight:"85vh",display:"flex",flexDirection:"column"},onClick:e=>e.stopPropagation()},
       h('div',{style:{padding:"16px 16px 12px",borderBottom:"1px solid #f0ece6",display:"flex",alignItems:"center",gap:12}},
-        h('div',{style:{width:40,height:40,borderRadius:"50%",background:"linear-gradient(135deg,#e8813a,#d4611f)",display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontWeight:800,fontSize:16}},(headerName||"?")[0]),
+        h('div',{style:{width:40,height:40,borderRadius:"50%",background:"linear-gradient(135deg,#3aa6a6,#1f6f6f)",display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontWeight:800,fontSize:16}},(headerName||"?")[0]),
         h('div',{style:{flex:1,minWidth:0}},
           h('div',{style:{fontWeight:700,fontSize:15}},headerName),
           h('div',{style:{fontSize:12,color:"#999",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},task.title)
@@ -417,14 +432,14 @@ function ChatModal({task, user, onClose, otherUid, otherName}) {
       h('div',{style:{background:"#fef9f4",padding:"8px 16px",fontSize:12,display:"flex",gap:8,alignItems:"center"}},
         h('span',{style:{color:"#b3530d"}},"Задание:"),
         h('span',{style:{color:"#666",flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},task.title),
-        h('span',{style:{color:"#d4611f",fontWeight:800}},(task.pay||0).toLocaleString("ru-RU")+" ₸")
+        h('span',{style:{color:"#1f6f6f",fontWeight:800}},(task.pay||0).toLocaleString("ru-RU")+" ₸")
       ),
       actionPanel,
       h('div',{style:{flex:1,overflowY:"auto",padding:16,minHeight:200}},
         msgs.length===0 && h('div',{style:{textAlign:"center",color:"#ccc",padding:"32px 0",fontSize:14}},"Напишите первым! 👋"),
         msgs.map(m=>h('div',{key:m.id,style:{display:"flex",justifyContent:m.senderUid===user.uid?"flex-end":"flex-start",marginBottom:10}},
           h('div',{style:{maxWidth:"75%",padding:"10px 14px",borderRadius:16,fontSize:14,lineHeight:1.4,
-            background:m.senderUid===user.uid?"linear-gradient(135deg,#e8813a,#d4611f)":"#f0ece6",
+            background:m.senderUid===user.uid?"linear-gradient(135deg,#3aa6a6,#1f6f6f)":"#f0ece6",
             color:m.senderUid===user.uid?"white":"#1a1a1a",
             borderBottomRightRadius:m.senderUid===user.uid?4:16,
             borderBottomLeftRadius:m.senderUid===user.uid?16:4}},m.text)
@@ -569,7 +584,7 @@ function CreateTask({user, onBack, onDone}) {
       // ── Блок загрузки чека ──
       h('div',{style:{marginBottom:24}},
         h('label',{style:{fontSize:11,fontWeight:700,color:"#888",textTransform:"uppercase",display:"block",marginBottom:6}},"Скриншот чека оплаты (500 ₸)"),
-        h('label',{style:{display:"flex",alignItems:"center",gap:12,padding:"12px 16px",border:"2px dashed "+(receiptFile?"#e8813a":"#e0dbd4"),borderRadius:12,cursor:"pointer",background:receiptFile?"#fef3e2":"white",transition:"all 0.2s"}},
+        h('label',{style:{display:"flex",alignItems:"center",gap:12,padding:"12px 16px",border:"2px dashed "+(receiptFile?"#3aa6a6":"#e0dbd4"),borderRadius:12,cursor:"pointer",background:receiptFile?"#fef3e2":"white",transition:"all 0.2s"}},
           h('span',{style:{fontSize:24}},receiptFile?"✅":"📎"),
           h('span',{style:{fontSize:13,color:receiptFile?"#b3530d":"#aaa"}},receiptFile?receiptFile.name:"Выбрать фото или PDF"),
           h('input',{type:"file",accept:"image/*,application/pdf",onChange:onReceiptChange,style:{display:"none"}})
@@ -580,7 +595,7 @@ function CreateTask({user, onBack, onDone}) {
 
       errors.publish && h('div',{style:{background:"#fff0f0",color:"#d32f2f",padding:"10px 14px",borderRadius:10,fontSize:13,marginBottom:12}},errors.publish),
 
-      h('button',{className:"btn-orange",onClick:()=>validate()&&setShowPay(true),style:{width:"100%",padding:16,borderRadius:14,fontSize:16,fontWeight:800,boxShadow:"0 4px 20px rgba(212,97,31,0.35)"}},"Опубликовать за 500 ₸")
+      h('button',{className:"btn-orange",onClick:()=>validate()&&setShowPay(true),style:{width:"100%",padding:16,borderRadius:14,fontSize:16,fontWeight:800,boxShadow:"0 4px 20px rgba(31,111,111,0.35)"}},"Опубликовать за 500 ₸")
     ),
     showPay && h('div',{className:"overlay"},
       h('div',{className:"bottom-sheet",style:{padding:24}},
@@ -594,7 +609,7 @@ function CreateTask({user, onBack, onDone}) {
             h('div',{key:k,style:{display:"flex",justifyContent:"space-between",fontSize:14,color:"#555",marginBottom:8}},h('span',null,k),h('b',{style:{maxWidth:160,textAlign:"right",fontSize:12,wordBreak:"break-all"}},v))
           ),
           h('div',{style:{borderTop:"1px dashed #ccc",paddingTop:10,display:"flex",justifyContent:"space-between",fontWeight:800,fontSize:15}},
-            h('span',null,"Итого"),h('span',{style:{color:"#d4611f"}},"500 ₸")
+            h('span',null,"Итого"),h('span',{style:{color:"#1f6f6f"}},"500 ₸")
           )
         ),
         h('div',{style:{background:"#e8f5e9",borderRadius:10,padding:"10px 14px",fontSize:12,color:"#2e7d32",marginBottom:16}},
@@ -665,6 +680,15 @@ function ChatsList({user, onOpen, onBack}) {
     });
   },[]);
 
+  const isUnread = (c) => {
+    if(!c.lastSenderUid || c.lastSenderUid===user.uid) return false;
+    const lastRead = c["lastRead_"+user.uid];
+    if(!lastRead) return true;
+    const lastReadMs = lastRead.toMillis ? lastRead.toMillis() : 0;
+    const updatedMs = c.updatedAt && c.updatedAt.toMillis ? c.updatedAt.toMillis() : 0;
+    return updatedMs > lastReadMs;
+  };
+
   return h('div',{style:{minHeight:"100vh",background:"#fafaf8"}},
     h('div',{style:{position:"sticky",top:0,background:"white",borderBottom:"1px solid #f0ece6",padding:"14px 16px",display:"flex",alignItems:"center",gap:12,zIndex:10}},
       h('button',{onClick:onBack,style:{background:"none",border:"none",fontSize:22,cursor:"pointer",color:"#555"}},"←"),
@@ -679,16 +703,18 @@ function ChatsList({user, onOpen, onBack}) {
         : chats.map(c=>{
             const isPoster = c.posterUid===user.uid;
             const otherName = isPoster ? c.applicantName : c.posterName;
-            return h('div',{key:c.id,className:"card",style:{padding:14,marginBottom:10,cursor:"pointer",display:"flex",gap:12,alignItems:"center",userSelect:"none",WebkitUserSelect:"none",WebkitTapHighlightColor:"transparent",touchAction:"manipulation"},onClick:()=>safeOpen(c)},
-              h('div',{style:{width:44,height:44,borderRadius:"50%",background:"linear-gradient(135deg,#e8813a,#d4611f)",display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontWeight:800,fontSize:17,flexShrink:0}},(otherName||"?")[0]),
+            const unread = isUnread(c);
+            return h('div',{key:c.id,className:"card",style:{padding:14,marginBottom:10,cursor:"pointer",display:"flex",gap:12,alignItems:"center",userSelect:"none",WebkitUserSelect:"none",WebkitTapHighlightColor:"transparent",touchAction:"manipulation",background:unread?"#eef9f9":"white"},onClick:()=>safeOpen(c)},
+              h('div',{style:{width:44,height:44,borderRadius:"50%",background:"linear-gradient(135deg,#3aa6a6,#1f6f6f)",display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontWeight:800,fontSize:17,flexShrink:0}},(otherName||"?")[0]),
               h('div',{style:{flex:1,minWidth:0}},
                 h('div',{style:{display:"flex",justifyContent:"space-between",gap:8}},
                   h('span',{style:{fontWeight:700,fontSize:14}},otherName||"Пользователь"),
                   h('span',{style:{fontSize:11,color:"#bbb",flexShrink:0}},timeAgo(c.updatedAt))
                 ),
                 h('div',{style:{fontSize:12,color:"#999",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},c.taskTitle),
-                h('div',{className:"line-clamp2",style:{fontSize:13,color:"#666",marginTop:2}},c.lastMessage||"")
-              )
+                h('div',{className:"line-clamp2",style:{fontSize:13,color:unread?"#1f6f6f":"#666",fontWeight:unread?700:400,marginTop:2}},c.lastMessage||"")
+              ),
+              unread && h('div',{style:{width:10,height:10,borderRadius:"50%",background:"#e23535",flexShrink:0}})
             );
           })
     )
@@ -848,11 +874,11 @@ function ProfileScreen({user, onBack, onLogout}) {
         h('div',{style:{fontSize:13,color:"#888",marginBottom:12}},user.phone),
         h('div',{style:{display:"flex",gap:20}},
           h('div',null,
-            h('div',{style:{fontSize:20,fontWeight:800,color:"#d4611f"}},reviews.length?avg.toFixed(1):"—"),
+            h('div',{style:{fontSize:20,fontWeight:800,color:"#1f6f6f"}},reviews.length?avg.toFixed(1):"—"),
             h('div',{style:{fontSize:11,color:"#999"}},"Рейтинг ("+reviews.length+")")
           ),
           h('div',null,
-            h('div',{style:{fontSize:20,fontWeight:800,color:"#d4611f"}},completed),
+            h('div',{style:{fontSize:20,fontWeight:800,color:"#1f6f6f"}},completed),
             h('div',{style:{fontSize:11,color:"#999"}},"Завершено работ")
           )
         )
@@ -885,6 +911,7 @@ function Feed({user}) {
   const [chatTask, setChatTask] = useState(null);
   const [reportTask, setReportTask] = useState(null);
   const [showVerify, setShowVerify] = useState(false);
+  const [chats, setChats] = useState([]);
   const cleanedRef = useRef(new Set());
 
   useEffect(()=>{
@@ -904,6 +931,29 @@ function Feed({user}) {
       });
     });
   },[]);
+
+  // Подписка на чаты — чтобы показывать счётчик непрочитанных сообщений
+  useEffect(()=>{
+    const {db,collection,query,where,onSnapshot} = window.__fb;
+    const q = query(collection(db,"chatMeta"), where("participants","array-contains",user.uid));
+    return onSnapshot(q, snap=>{
+      setChats(snap.docs.map(d=>({id:d.id,...d.data()})));
+    });
+  },[user.uid]);
+
+  const isUnread = (c) => {
+    if(!c.lastSenderUid || c.lastSenderUid===user.uid) return false; // нет сообщений или последнее моё
+    const lastRead = c["lastRead_"+user.uid];
+    if(!lastRead) return true;
+    const lastReadMs = lastRead.toMillis ? lastRead.toMillis() : 0;
+    const updatedMs = c.updatedAt && c.updatedAt.toMillis ? c.updatedAt.toMillis() : 0;
+    return updatedMs > lastReadMs;
+  };
+  const unreadCount = chats.filter(isUnread).length;
+
+  useEffect(()=>{
+    document.title = unreadCount>0 ? `(${unreadCount}) Подработка рядом` : "Подработка рядом";
+  },[unreadCount]);
 
   const filtered = (district==="Все районы" ? tasks : tasks.filter(t=>t.district===district)).filter(t=>t.status!=="completed" && t.status!=="pending_payment" && t.status!=="rejected").filter(t=>(t.title||"").toLowerCase().includes(search.toLowerCase()));
 
@@ -930,11 +980,11 @@ function Feed({user}) {
     else setChatTask({task});
   };
 
-  if(screen==="create") return h(CreateTask,{user,onBack:()=>setScreen("feed"),onDone:()=>setScreen("feed")});
-  if(screen==="chats") return h(ChatsList,{user,onBack:()=>setScreen("feed"),onOpen:openChatFromMeta});
-  if(screen==="profile") return h(ProfileScreen,{user,onBack:()=>setScreen("feed"),onLogout:()=>{localStorage.removeItem("user");setUser(null);}});
-
-  return h('div',{style:{minHeight:"100vh",background:"#fafaf8"}},
+  let screenContent;
+  if(screen==="create") screenContent = h(CreateTask,{user,onBack:()=>setScreen("feed"),onDone:()=>setScreen("feed")});
+  else if(screen==="chats") screenContent = h(ChatsList,{user,onBack:()=>setScreen("feed"),onOpen:openChatFromMeta});
+  else if(screen==="profile") screenContent = h(ProfileScreen,{user,onBack:()=>setScreen("feed"),onLogout:()=>{localStorage.removeItem("user");setUser(null);}});
+  else screenContent = h('div',{style:{minHeight:"100vh",background:"#fafaf8"}},
     h('div',{style:{position:"sticky",top:0,background:"white",borderBottom:"1px solid #f0ece6",zIndex:10}},
       h('div',{style:{padding:"14px 16px 10px",maxWidth:600,margin:"0 auto"}},
         h('div',{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}},
@@ -943,20 +993,23 @@ function Feed({user}) {
             h('p',{style:{fontSize:12,color:"#aaa"}},"Павлодар · "+user.name),
             user.phoneVerified
               ? h('span',{style:{fontSize:11,color:"#2e7d32",fontWeight:700}},"Телефон подтвержден")
-              : h('span',{onClick:()=>setShowVerify(true),style:{fontSize:11,color:"#d4611f",fontWeight:700,cursor:"pointer",textDecoration:"underline"}},"Подтвердить телефон")
+              : h('span',{onClick:()=>setShowVerify(true),style:{fontSize:11,color:"#1f6f6f",fontWeight:700,cursor:"pointer",textDecoration:"underline"}},"Подтвердить телефон")
           ),
           h('div',{style:{display:"flex",gap:8}},
-            h('button',{className:"btn-orange",onClick:()=>setScreen("create"),style:{padding:"8px 16px",borderRadius:20,fontSize:13,fontWeight:700,boxShadow:"0 2px 10px rgba(212,97,31,0.3)"}},"+ Создать"),
-            h('button',{onClick:()=>setScreen("chats"),style:{padding:"8px 14px",borderRadius:20,fontSize:13,fontWeight:700,background:"#f0ece6",border:"none",cursor:"pointer",color:"#6b5a46"}},"💬 Чаты"),
+            h('button',{className:"btn-orange",onClick:()=>setScreen("create"),style:{padding:"8px 16px",borderRadius:20,fontSize:13,fontWeight:700,boxShadow:"0 2px 10px rgba(31,111,111,0.3)"}},"+ Создать"),
+            h('button',{onClick:()=>setScreen("chats"),style:{position:"relative",padding:"8px 14px",borderRadius:20,fontSize:13,fontWeight:700,background:"#f0ece6",border:"none",cursor:"pointer",color:"#6b5a46"}},
+              "💬 Чаты",
+              unreadCount>0 && h('span',{style:{position:"absolute",top:-6,right:-6,background:"#e23535",color:"white",borderRadius:"50%",minWidth:18,height:18,fontSize:11,fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center",padding:"0 4px",lineHeight:1}},unreadCount>9?"9+":unreadCount)
+            ),
             h('button',{onClick:()=>setScreen("profile"),style:{padding:"8px 14px",borderRadius:20,fontSize:13,fontWeight:700,background:"#f0ece6",border:"none",cursor:"pointer",color:"#6b5a46"}},"Профиль")
-          ),
-          h('div',{style:{padding:"0 12px"}},
-            h('input',{type:"text",placeholder:"🔍 Поиск по названию...",value:search,onChange:e=>setSearch(e.target.value),style:{width:"100%",padding:"10px 14px",border:"1px solid #e0dbd4",borderRadius:10,fontSize:13,boxSizing:"border-box"}})
           )
+        ),
+        h('div',{style:{padding:"0 0 10px"}},
+          h('input',{type:"text",placeholder:"🔍 Поиск по названию...",value:search,onChange:e=>setSearch(e.target.value),style:{width:"100%",padding:"10px 14px",border:"1px solid #e0dbd4",borderRadius:10,fontSize:13,boxSizing:"border-box"}})
         ),
         h('div',{style:{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,scrollbarWidth:"none"}},
           DISTRICTS.map(d=>h('button',{key:d,className:"tag",onClick:()=>setDistrict(d),
-            style:{background:district===d?"linear-gradient(135deg,#e8813a,#d4611f)":"#f0ece6",color:district===d?"white":"#6b5a46"}},d))
+            style:{background:district===d?"linear-gradient(135deg,#3aa6a6,#1f6f6f)":"#f0ece6",color:district===d?"white":"#6b5a46"}},d))
         )
       )
     ),
@@ -968,12 +1021,16 @@ function Feed({user}) {
     h('div',{style:{padding:"8px 16px 40px",maxWidth:600,margin:"0 auto"}},
       filtered.length===0
         ? h('div',{style:{textAlign:"center",padding:"60px 0"}},
-            h('div',{style:{fontSize:48,marginBottom:12}},"🌾"),
+            h('div',{style:{fontSize:48,marginBottom:12}},"🛠️"),
             h('p',{style:{fontSize:16,color:"#999",fontWeight:600}},"В этом районе пока нет заданий"),
             h('p',{style:{fontSize:13,color:"#bbb",marginTop:4}},"Создайте первым!")
           )
         : filtered.map(t=>h(TaskCard,{key:t.id,task:t,onChat:tk=>setChatTask({task:tk}),onReport:setReportTask,onComplete:tk=>setChatTask({task:tk,otherUid:tk.assigneeUid,otherName:tk.assigneeName}),uid:user.uid}))
-    ),
+    )
+  );
+
+  return h(React.Fragment, null,
+    screenContent,
     chatTask && h(ChatModal,{task:chatTask.task,user,onClose:()=>setChatTask(null),otherUid:chatTask.otherUid,otherName:chatTask.otherName}),
     reportTask && h(ReportModal,{task:reportTask,user,onClose:()=>setReportTask(null)}),
     showVerify && h(PhoneVerifyModal,{user,onClose:()=>setShowVerify(false)})
@@ -1013,7 +1070,7 @@ function App() {
   };
 
   if(!ready) return h('div',{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"linear-gradient(135deg,#fdf6ec,#fef3e2)"}},
-    h('div',{style:{textAlign:"center"}},h('div',{style:{fontSize:48,marginBottom:12}},"🌾"),h('p',{style:{color:"#e8813a",fontWeight:700,fontSize:16}},"Загрузка..."))
+    h('div',{style:{textAlign:"center"}},h('div',{style:{fontSize:48,marginBottom:12}},"🛠️"),h('p',{style:{color:"#3aa6a6",fontWeight:700,fontSize:16}},"Загрузка..."))
   );
   if(!user) return h(AuthScreen,{onLogin:login});
   return h(Feed,{user});
