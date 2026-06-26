@@ -53,6 +53,18 @@ const TELEGRAM_BOT_USERNAME = "podrabotka_pvl_codes_bot";
 const {useState, useEffect, useRef} = React;
 const h = React.createElement;
 
+// Приводит номер к единому формату +7XXXXXXXXXX, независимо от того,
+// как ввёл пользователь: 8XXXXXXXXXX, 7XXXXXXXXXX, +7 (XXX) XXX-XX-XX и т.п.
+function normalizePhone(input) {
+  let digits = (input || "").replace(/\D/g, ""); // оставляем только цифры
+  if (digits.length === 11 && (digits[0] === "8" || digits[0] === "7")) {
+    digits = "7" + digits.slice(1);
+  } else if (digits.length === 10) {
+    digits = "7" + digits;
+  }
+  return "+" + digits;
+}
+
 function genCode() {
   return String(Math.floor(100000 + Math.random()*900000));
 }
@@ -79,8 +91,8 @@ function AuthScreen({onLogin}) {
 
 const startRegistration = async () => {
     if (!name.trim()) return setError("Введите ваше имя");
-    const raw = phone.replace(/\s/g,"");
-    if (raw.length < 11) return setError("Введите номер: +7XXXXXXXXXX");
+    const raw = normalizePhone(phone);
+    if (raw.length < 11 || !/^\+7\d{10}$/.test(raw)) return setError("Введите номер телефона, например 87771234567 или +77771234567");
     setError("");
     setLoading(true);
     try {
@@ -247,7 +259,7 @@ const startRegistration = async () => {
         ),
         h('div',{style:{marginBottom:14}},
           h('label',{style:{fontSize:11,fontWeight:700,color:"#888",textTransform:"uppercase",display:"block",marginBottom:6}},"Номер телефона"),
-          h('input',{className:"input-field",placeholder:"+7 777 000 00 00",value:phone,onChange:e=>setPhone(e.target.value),type:"tel"})
+          h('input',{className:"input-field",placeholder:"8 777 000 00 00 или +7...",value:phone,onChange:e=>setPhone(e.target.value),type:"tel"})
         ),
         h('div',{style:{background:"#fff8e1",border:"1px solid #ffe082",borderRadius:10,padding:"10px 14px",fontSize:12,color:"#7a5c00",marginBottom:16}},
           "⚠️ Встречайтесь только в людных местах. Не переводите деньги незнакомым людям заранее."
