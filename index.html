@@ -513,21 +513,12 @@ function CreateTask({user, onBack, onDone}) {
         "Firebase Console -> tasks -> " + taskId + "\n" +
         "status: pending_payment -> open (опубликовать) / rejected (отклонить)";
       try {
-  await fetch("/.netlify/functions/notify-task", {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({
-      taskId,
-      task: {
-        ...form,
-        pay: Number(form.pay),
-        authorName: user.name,
-        authorPhone: user.phone,
-        receiptUrl
-      }
-    })
-  });
-} catch(e){ console.error("tg error", e); }
+        await fetch("https://api.telegram.org/bot8910813476:AAET6lE4eBSAUDLIeKG0sR94OwmDKbYh7cA/sendPhoto", {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({chat_id:"7922008036", photo: receiptUrl, caption})
+        });
+      } catch(e){ console.error("tg error", e); }
 
       onDone();
     } catch(e) {
@@ -810,7 +801,7 @@ function PhoneVerifyModal({user, onClose}) {
 }
 
 // ── PROFILE ──────────────────────────────────────────────
-function ProfileScreen({user, onBack}) {
+function ProfileScreen({user, onBack, onLogout}) {
   const [reviews, setReviews] = useState([]);
   const [completed, setCompleted] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -843,7 +834,8 @@ function ProfileScreen({user, onBack}) {
   return h('div',{style:{minHeight:"100vh",background:"#fafaf8"}},
     h('div',{style:{position:"sticky",top:0,background:"white",borderBottom:"1px solid #f0ece6",padding:"14px 16px",display:"flex",alignItems:"center",gap:12,zIndex:10}},
       h('button',{onClick:onBack,style:{background:"none",border:"none",fontSize:22,cursor:"pointer",color:"#555"}},"←"),
-      h('span',{style:{fontWeight:800,fontSize:17}},"Профиль")
+      h('span',{style:{fontWeight:800,fontSize:17,flex:1}},"Профиль"),
+      h('button',{onClick:onLogout,style:{background:"none",border:"none",fontSize:13,cursor:"pointer",color:"#d32f2f",fontWeight:700,padding:"6px 12px",borderRadius:8,border:"1px solid #ffcdd2"}},"Выйти")
     ),
     h('div',{style:{padding:"16px 16px 40px",maxWidth:600,margin:"0 auto"}},
       h('div',{className:"card",style:{padding:18,marginBottom:16}},
@@ -860,7 +852,7 @@ function ProfileScreen({user, onBack}) {
           )
         )
       ),
-      h('button',{onClick:()=>{localStorage.removeItem("user");window.location.reload();},style:{width:"100%",padding:"12px",borderRadius:12,background:"#fff0f0",border:"1px solid #ffd0d0",color:"#e53935",fontWeight:700,fontSize:14,cursor:"pointer",marginBottom:16}},"Выйти из аккаунта"),h('div',{style:{fontWeight:700,fontSize:14,marginBottom:10}},"Отзывы"),
+      h('div',{style:{fontWeight:700,fontSize:14,marginBottom:10}},"Отзывы"),
       loading ? h('p',{style:{fontSize:13,color:"#aaa"}},"Загрузка...")
       : reviews.length===0 ? h('p',{style:{fontSize:13,color:"#aaa"}},"Пока нет отзывов")
       : reviews.map(r=>h('div',{key:r.id,className:"card",style:{padding:14,marginBottom:10}},
@@ -930,7 +922,7 @@ function Feed({user}) {
 
   if(screen==="create") return h(CreateTask,{user,onBack:()=>setScreen("feed"),onDone:()=>setScreen("feed")});
   if(screen==="chats") return h(ChatsList,{user,onBack:()=>setScreen("feed"),onOpen:openChatFromMeta});
-  if(screen==="profile") return h(ProfileScreen,{user,onBack:()=>setScreen("feed")});
+  if(screen==="profile") return h(ProfileScreen,{user,onBack:()=>setScreen("feed"),onLogout:()=>{localStorage.removeItem("user");setUser(null);}});
 
   return h('div',{style:{minHeight:"100vh",background:"#fafaf8"}},
     h('div',{style:{position:"sticky",top:0,background:"white",borderBottom:"1px solid #f0ece6",zIndex:10}},
